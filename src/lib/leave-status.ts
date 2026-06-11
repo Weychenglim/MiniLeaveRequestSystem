@@ -13,3 +13,15 @@ export function getStatusLabel(status: string) {
 
   return status.charAt(0) + status.slice(1).toLowerCase();
 }
+
+export function getStatusBadgeClass(status: string) {
+  if (status === "APPROVED") {
+    return "border-fern/30 bg-fern/15 text-moss";
+  }
+
+  if (status === "REJECTED") {
+    return "border-clay/30 bg-clay/15 text-clay";
+  }
+
+  return "border-ink/15 bg-linen text-ink";
+}
