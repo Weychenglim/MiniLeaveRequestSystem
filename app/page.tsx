@@ -1,4 +1,6 @@
+import { approveLeaveRequest, rejectLeaveRequest } from "@/app/actions";
 import { LeaveRequestForm } from "@/components/leave-request-form";
+import { getStatusLabel } from "@/lib/leave-status";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -93,7 +95,7 @@ async function RequestList({
                   <div className="flex flex-wrap items-center gap-3">
                     <h3 className="text-lg font-extrabold">{request.name}</h3>
                     <span className="rounded-md bg-linen px-2.5 py-1 text-xs font-bold uppercase tracking-[0.14em] text-moss">
-                      {request.status.toLowerCase()}
+                      {getStatusLabel(request.status)}
                     </span>
                   </div>
                   <p className="mt-2 text-sm font-semibold text-clay">
@@ -102,6 +104,26 @@ async function RequestList({
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-moss">
                     {request.reason}
                   </p>
+                </div>
+                <div className="flex gap-2 md:items-start">
+                  <form action={approveLeaveRequest.bind(null, request.id)}>
+                    <button
+                      type="submit"
+                      className="rounded-md border border-fern/25 bg-fern/10 px-3 py-2 text-sm font-bold text-moss transition hover:bg-fern/20 disabled:cursor-not-allowed disabled:opacity-45"
+                      disabled={request.status === "APPROVED"}
+                    >
+                      Approve
+                    </button>
+                  </form>
+                  <form action={rejectLeaveRequest.bind(null, request.id)}>
+                    <button
+                      type="submit"
+                      className="rounded-md border border-clay/25 bg-clay/10 px-3 py-2 text-sm font-bold text-clay transition hover:bg-clay/20 disabled:cursor-not-allowed disabled:opacity-45"
+                      disabled={request.status === "REJECTED"}
+                    >
+                      Reject
+                    </button>
+                  </form>
                 </div>
               </article>
             ))}

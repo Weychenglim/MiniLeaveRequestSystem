@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import { type LeaveStatus } from "@/lib/leave-status";
 import {
   emptyLeaveRequestFormValues,
   getLeaveRequestValues,
@@ -43,4 +44,25 @@ export async function createLeaveRequest(
     values: emptyLeaveRequestFormValues,
     errors: {}
   };
+}
+
+async function updateLeaveRequestStatus(id: number, status: LeaveStatus) {
+  await prisma.leaveRequest.update({
+    where: {
+      id
+    },
+    data: {
+      status
+    }
+  });
+
+  revalidatePath("/");
+}
+
+export async function approveLeaveRequest(id: number) {
+  await updateLeaveRequestStatus(id, "APPROVED");
+}
+
+export async function rejectLeaveRequest(id: number) {
+  await updateLeaveRequestStatus(id, "REJECTED");
 }
