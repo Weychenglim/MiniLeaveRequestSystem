@@ -6,6 +6,7 @@
 - `src/app/actions.ts` contains server actions for creating, approving, and rejecting leave requests.
 - `src/components/leave-request-form.tsx` contains the client form and inline validation display.
 - `src/lib/leave-validation.ts` contains Zod-backed server validation.
+- `src/lib/leave-request-queue.ts` contains search and pending-first queue ordering.
 - `src/lib/leave-status.ts` contains status values, labels, and badge styling helpers.
 - `src/lib/prisma.ts` provides a shared Prisma Client instance.
 - `prisma/schema.prisma` defines the leave request model.
@@ -19,9 +20,13 @@
 
 Submission validation runs in the server action before database writes. Required fields return field-specific messages, and invalid date ranges attach the error to `endDate`.
 
+## Queue Behavior
+
+The dashboard reads the full request list, applies the selected status filter, searches staff name and reason text, then sorts pending requests first and newest requests within each status group.
+
 ## Testing Strategy
 
-Vitest covers validation rules and allowed status values. Next.js lint and build are used as integration checks for component, server action, and type safety.
+Vitest covers validation rules, allowed status values, date duration helpers, and queue search/sort behavior. Next.js lint and build are used as integration checks for component, server action, and type safety.
 
 ## Security Notes
 

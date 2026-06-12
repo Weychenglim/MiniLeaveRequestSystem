@@ -9,6 +9,7 @@ NaiBnB Stage 2 practical task built with Next.js, Prisma, SQLite, Zod, and Tailw
 - Server-side validation for required fields and date ranges
 - Approve or reject each request
 - Filter by All, Pending, Approved, or Rejected
+- Search the manager queue by staff name or reason
 - Polished responsive dashboard UI
 
 ## Tech Stack

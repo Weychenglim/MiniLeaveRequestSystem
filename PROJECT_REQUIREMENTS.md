@@ -14,6 +14,8 @@ Build a compact leave request feature for the NaiBnB technical assessment.
 - Allow a manager-style user to approve or reject a request.
 - Provide a status filter as the bonus feature.
 - Show the number of leave days requested on each leave card.
+- Let managers search the queue by staff name or reason.
+- Prioritize pending requests before decided requests in the review queue.
 
 ## Deliverables
 
