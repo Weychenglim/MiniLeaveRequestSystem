@@ -13,6 +13,7 @@ Build a compact leave request feature for the NaiBnB technical assessment.
 - Show clear validation messages when submission fails.
 - Allow a manager-style user to approve or reject a request.
 - Provide a status filter as the bonus feature.
+- Show the number of leave days requested on each leave card.
 
 ## Deliverables
 

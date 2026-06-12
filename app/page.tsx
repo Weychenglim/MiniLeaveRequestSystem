@@ -1,5 +1,6 @@
 import { approveLeaveRequest, rejectLeaveRequest } from "@/app/actions";
 import { LeaveRequestForm } from "@/components/leave-request-form";
+import { getLeaveDurationLabel } from "@/lib/leave-dates";
 import {
   getStatusBadgeClass,
   getStatusLabel,
@@ -249,6 +250,9 @@ function RequestList({
                   </div>
                   <p className="mt-2 text-sm font-semibold text-clay">
                     {formatDate(request.startDate)} - {formatDate(request.endDate)}
+                  </p>
+                  <p className="mt-2 inline-flex rounded-md bg-linen px-2.5 py-1 text-xs font-bold uppercase tracking-[0.14em] text-moss">
+                    {getLeaveDurationLabel(request.startDate, request.endDate)} requested
                   </p>
                   <p className="mt-2 max-w-2xl text-sm leading-6 text-moss">
                     {request.reason}
