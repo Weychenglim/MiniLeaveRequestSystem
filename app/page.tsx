@@ -1,6 +1,7 @@
 import { approveLeaveRequest, rejectLeaveRequest } from "@/app/actions";
 import { LeaveRequestForm } from "@/components/leave-request-form";
 import { getLeaveDurationLabel } from "@/lib/leave-dates";
+import { prepareLeaveRequestQueue } from "@/lib/leave-request-queue";
 import {
   getStatusBadgeClass,
   getStatusLabel,
@@ -14,6 +15,7 @@ import {
   CheckCircle2,
   Clock3,
   Filter,
+  Search,
   XCircle
 } from "lucide-react";
 import Link from "next/link";
@@ -46,14 +48,31 @@ function getSelectedStatus(status?: string): FilterStatus {
   return "ALL";
 }
 
+function buildQueueHref(status: FilterStatus, query: string) {
+  const params = new URLSearchParams();
+
+  if (status !== "ALL") {
+    params.set("status", status);
+  }
+
+  if (query) {
+    params.set("q", query);
+  }
+
+  const queryString = params.toString();
+  return queryString ? `/?${queryString}` : "/";
+}
+
 export default async function Home({
   searchParams
 }: {
   searchParams?: {
     status?: string;
+    q?: string;
   };
 }) {
   const selectedStatus = getSelectedStatus(searchParams?.status);
+  const searchQuery = String(searchParams?.q ?? "").trim();
   const requests = await prisma.leaveRequest.findMany({
     orderBy: {
       createdAt: "desc"
@@ -63,6 +82,10 @@ export default async function Home({
     selectedStatus === "ALL"
       ? requests
       : requests.filter((request) => request.status === selectedStatus);
+  const queuedRequests = prepareLeaveRequestQueue(
+    filteredRequests,
+    searchQuery
+  );
 
   const pendingCount = requests.filter(
     (request) => request.status === "PENDING"
@@ -140,7 +163,8 @@ export default async function Home({
           </section>
 
           <RequestList
-            requests={filteredRequests}
+            requests={queuedRequests}
+            searchQuery={searchQuery}
             selectedStatus={selectedStatus}
             totalCount={requests.length}
           />
@@ -176,10 +200,12 @@ function MetricCard({
 
 function RequestList({
   requests,
+  searchQuery,
   selectedStatus,
   totalCount
 }: {
   requests: Awaited<ReturnType<typeof prisma.leaveRequest.findMany>>;
+  searchQuery: string;
   selectedStatus: FilterStatus;
   totalCount: number;
 }) {
@@ -199,14 +225,43 @@ function RequestList({
         </span>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-2">
+      <form action="/" className="mt-5">
+        {selectedStatus !== "ALL" ? (
+          <input type="hidden" name="status" value={selectedStatus} />
+        ) : null}
+        <label
+          htmlFor="queue-search"
+          className="text-sm font-bold uppercase tracking-[0.16em] text-moss"
+        >
+          Search queue
+        </label>
+        <div className="mt-2 flex gap-2">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-moss" />
+            <input
+              id="queue-search"
+              name="q"
+              defaultValue={searchQuery}
+              className="w-full rounded-md border border-moss/20 bg-white py-3 pl-10 pr-4 text-ink outline-none transition focus:border-clay focus:ring-4 focus:ring-clay/15"
+              placeholder="Search name or reason"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-md bg-ink px-4 py-3 text-sm font-bold text-linen transition hover:bg-moss"
+          >
+            Search
+          </button>
+        </div>
+      </form>
+
+      <div className="mt-4 flex flex-wrap gap-2">
         <div className="mr-1 flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-moss">
           <Filter className="h-4 w-4" />
           Filter
         </div>
         {filterOptions.map((option) => {
-          const href =
-            option.value === "ALL" ? "/" : `/?status=${encodeURIComponent(option.value)}`;
+          const href = buildQueueHref(option.value, searchQuery);
           const isActive = selectedStatus === option.value;
 
           return (
@@ -228,7 +283,7 @@ function RequestList({
       <div className="mt-5 overflow-hidden rounded-md border border-moss/10">
         {requests.length === 0 ? (
           <div className="bg-linen/60 px-5 py-12 text-center text-moss">
-            No requests match this filter.
+            No requests match this view.
           </div>
         ) : (
           <div className="divide-y divide-moss/10">

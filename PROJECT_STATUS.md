@@ -10,6 +10,7 @@
 - Approve and reject workflow implemented.
 - Status filter and polished dashboard UI added.
 - Inclusive leave day count added to each request card.
+- Queue search and pending-first ordering added.
 - Unit tests added for validation and status helpers.
 - README and scenario answers added.
 
